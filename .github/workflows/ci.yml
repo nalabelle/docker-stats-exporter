@@ -63,5 +63,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
         with:
-          name: $PACKAGE_NAME
-          path: target/release/$PACKAGE_NAME
+          name: ${{ env.PACKAGE_NAME }}
+          path: target/release/${{ env.PACKAGE_NAME}}
