@@ -1,16 +1,39 @@
+use anyhow::{anyhow, Result};
+use serde::Deserialize;
 use std::process::Command;
-use serde::{Deserialize, Serialize};
-use anyhow::{Result, anyhow};
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct DockerContainerStats {
-    pub container: String,
+    //"BlockIO":"1.1GB / 473MB"
+    #[serde(rename = "BlockIO")]
+    pub block_io: String,
+    // "CPUPerc":"0.41%",
+    #[serde(rename = "CPUPerc")]
     pub cpu_perc: String,
+    // "Container":"9db408e1b7b7",
+    #[serde(rename = "Container")]
+    pub container: String,
+    // "ID":"9db408e1b7b7",
+    #[serde(rename = "ID")]
+    pub id: String,
+    // "MemPerc":"69.07%",
+    #[serde(rename = "MemPerc")]
     pub mem_perc: String,
+    //"MemUsage":"707.3MiB / 1GiB",
+    #[serde(rename = "MemUsage")]
+    pub mem_usage: String,
+    //"Name":"paperless",
+    #[serde(rename = "Name")]
+    pub name: String,
+    //"NetIO":"13.4MB / 2.32MB",
+    #[serde(rename = "NetIO")]
     pub net_io: String,
+    //"PIDs":"79"
+    #[serde(rename = "PIDs")]
+    pub pids: String,
 }
 
-const DOCKER_FORMAT: &str = r#"{"container": "{{.Name}}", "cpu_perc": "{{.CPUPerc}}", "mem_perc": "{{.MemPerc}}", "net_io": "{{.NetIO}}"}"#;
+const DOCKER_FORMAT: &str = r#"{{json .}}"#;
 
 pub fn stats() -> Result<Vec<DockerContainerStats>> {
     let output = Command::new("docker")
@@ -21,7 +44,10 @@ pub fn stats() -> Result<Vec<DockerContainerStats>> {
     let stderr = String::from_utf8(output.stderr)?;
 
     if !output.status.success() {
-        eprintln!("`docker stats` returned non-zero exit code with output: \n{}\n{}", stdout, stderr);
+        eprintln!(
+            "`docker stats` returned non-zero exit code with output: \n{}\n{}",
+            stdout, stderr
+        );
         return Err(anyhow!("Docker stats command did bad :("));
     }
 
@@ -31,4 +57,3 @@ pub fn stats() -> Result<Vec<DockerContainerStats>> {
     let result = serde_json::from_str::<Vec<DockerContainerStats>>(json_string.as_str())?;
     Ok(result)
 }
-
