@@ -1,4 +1,4 @@
-FROM rust:1.83@sha256:d420d096ae68dc857f235fc35185a841dc9f42dae213479f7397305df5a0c62b
+FROM rust:1.83@sha256:df1ab82477dacdfc420b69e92659dc2ea89e9bbdf982d999985324bc031d1ada
 
 RUN apt update
 RUN apt install docker.io -y
